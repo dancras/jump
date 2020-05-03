@@ -1,4 +1,7 @@
+mod pong;
+
 use amethyst::{
+    core::transform::TransformBundle,
     prelude::*,
     renderer::{
         plugins::{RenderFlat2D, RenderToWindow},
@@ -8,9 +11,7 @@ use amethyst::{
     utils::application_root_dir,
 };
 
-pub struct Pong;
-
-impl SimpleState for Pong {}
+use crate::pong::Pong;
 
 fn main() -> amethyst::Result<()> {
 
@@ -29,7 +30,8 @@ fn main() -> amethyst::Result<()> {
                 )
                 // RenderFlat2D plugin is used to render entities with a `SpriteRender` component.
                 .with_plugin(RenderFlat2D::default()),
-        )?;
+        )?
+        .with_bundle(TransformBundle::new())?;
 
     let assets_dir = app_root.join("assets");
     let mut game = Application::new(assets_dir, Pong, game_data)?;
