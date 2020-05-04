@@ -10,9 +10,9 @@ pub const ARENA_ROWS: u8 = 4;
 pub const ARENA_COLS: u8 = 9;
 pub const TILE_SIZE: f32 = 16.0;
 
-pub struct Pong;
+pub struct Jump;
 
-impl SimpleState for Pong {
+impl SimpleState for Jump {
     fn on_start(&mut self, data: StateData<'_, GameData<'_, '_>>) {
         let world = data.world;
 

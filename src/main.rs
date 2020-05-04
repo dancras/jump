@@ -1,4 +1,4 @@
-mod pong;
+mod jump;
 
 use amethyst::{
     core::transform::TransformBundle,
@@ -11,7 +11,7 @@ use amethyst::{
     utils::application_root_dir,
 };
 
-use crate::pong::Pong;
+use crate::jump::Jump;
 
 fn main() -> amethyst::Result<()> {
 
@@ -33,7 +33,7 @@ fn main() -> amethyst::Result<()> {
         .with_bundle(TransformBundle::new())?;
 
     let assets_dir = app_root.join("assets");
-    let mut game = Application::new(assets_dir, Pong, game_data)?;
+    let mut game = Application::new(assets_dir, Jump, game_data)?;
     game.run();
 
     Ok(())
