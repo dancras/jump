@@ -6,11 +6,9 @@ use amethyst::{
     renderer::{Camera, ImageFormat, SpriteRender, SpriteSheet, SpriteSheetFormat, Texture},
 };
 
-pub const ARENA_HEIGHT: f32 = 100.0;
-pub const ARENA_WIDTH: f32 = 100.0;
-
-pub const PADDLE_HEIGHT: f32 = 16.0;
-pub const PADDLE_WIDTH: f32 = 4.0;
+pub const ARENA_ROWS: u8 = 4;
+pub const ARENA_COLS: u8 = 9;
+pub const TILE_SIZE: f32 = 16.0;
 
 pub struct Pong;
 
@@ -20,8 +18,8 @@ impl SimpleState for Pong {
 
         let sprite_sheet_handle = load_sprite_sheet(world);
 
-        world.register::<Paddle>();
-        initialise_paddles(world, sprite_sheet_handle);
+        world.register::<Tile>();
+        initialise_grid(world, sprite_sheet_handle);
 
         initialise_camera(world);
     }
@@ -29,83 +27,89 @@ impl SimpleState for Pong {
 }
 
 fn initialise_camera(world: &mut World) {
-    // Setup camera in a way that our screen covers whole arena and (0, 0) is in the bottom left.
+
+    let arena_width = ARENA_COLS as f32 * TILE_SIZE;
+    let arena_height = ARENA_ROWS as f32 * TILE_SIZE;
+
     let mut transform = Transform::default();
-    transform.set_translation_xyz(ARENA_WIDTH * 0.5, ARENA_HEIGHT * 0.5, 1.0);
+    transform.set_translation_xyz(arena_width * 0.5, arena_height * 0.5, 1.0);
 
     world
         .create_entity()
-        .with(Camera::standard_2d(ARENA_WIDTH, ARENA_HEIGHT))
+        .with(Camera::standard_2d(arena_width, arena_height))
         .with(transform)
         .build();
 }
 
-#[derive(PartialEq, Eq)]
-pub enum Side {
-    Left,
-    Right,
-}
-
-pub struct Paddle {
-    pub side: Side,
+pub struct Tile {
     pub width: f32,
     pub height: f32,
 }
 
-impl Paddle {
-    fn new(side: Side) -> Paddle {
-        Paddle {
-            side,
-            width: PADDLE_WIDTH,
-            height: PADDLE_HEIGHT,
+impl Tile {
+    fn new() -> Self {
+        Self {
+            width: TILE_SIZE,
+            height: TILE_SIZE,
         }
     }
 }
 
-impl Component for Paddle {
+impl Component for Tile {
     type Storage = DenseVecStorage<Self>;
 }
 
-fn initialise_paddles(world: &mut World, sprite_sheet_handle: Handle<SpriteSheet>) {
-    let mut left_transform = Transform::default();
-    let mut right_transform = Transform::default();
-
-    // Correctly position the paddles.
-    let y = ARENA_HEIGHT / 2.0;
-    left_transform.set_translation_xyz(PADDLE_WIDTH * 0.5, y, 0.0);
-    right_transform.set_translation_xyz(ARENA_WIDTH - PADDLE_WIDTH * 0.5, y, 0.0);
-
-    let sprite_render = SpriteRender {
-        sprite_sheet: sprite_sheet_handle,
-        sprite_number: 0, // paddle is the first sprite in the sprite_sheet
+fn initialise_grid(world: &mut World, sprite_sheet_handle: Handle<SpriteSheet>) {
+    let w = SpriteRender {
+        sprite_sheet: sprite_sheet_handle.clone(),
+        sprite_number: 0,
     };
 
-    // Create a left plank entity.
-    world
-        .create_entity()
-        .with(sprite_render.clone())
-        .with(Paddle::new(Side::Left))
-        .with(left_transform)
-        .build();
+    let f = SpriteRender {
+        sprite_sheet: sprite_sheet_handle.clone(),
+        sprite_number: 1,
+    };
 
-    // Create right plank entity.
-    world
-        .create_entity()
-        .with(sprite_render)
-        .with(Paddle::new(Side::Right))
-        .with(right_transform)
-        .build();
+    let s = SpriteRender {
+        sprite_sheet: sprite_sheet_handle,
+        sprite_number: 2,
+    };
+
+    let map = [
+        &w, &s, &s, &s, &s, &s, &s, &s, &w,
+        &w, &f, &s, &s, &s, &s, &s, &f, &w,
+        &w, &s, &s, &s, &s, &s, &s, &s, &w,
+        &w, &f, &f, &f, &f, &f, &f, &f, &w,
+    ];
+
+    for (i, sprite_render) in map.iter().enumerate() {
+
+        let i = i as u8;
+        let mut transform = Transform::default();
+
+        let half_tile = TILE_SIZE / 2.0;
+
+        let y = (ARENA_ROWS - (i / 9)) as f32 * TILE_SIZE - half_tile;
+        let x = (i % 9) as f32 * TILE_SIZE + half_tile;
+
+        transform.set_translation_xyz(x, y, 0.0);
+
+        world
+            .create_entity()
+            .with((*sprite_render).clone())
+            .with(Tile::new())
+            .with(transform)
+            .build();
+
+    }
 }
 
 fn load_sprite_sheet(world: &mut World) -> Handle<SpriteSheet> {
-    // Load the sprite sheet necessary to render the graphics.
-    // The texture is the pixel data
-    // `texture_handle` is a cloneable reference to the texture
     let texture_handle = {
         let loader = world.read_resource::<Loader>();
         let texture_storage = world.read_resource::<AssetStorage<Texture>>();
         loader.load(
-            "texture/pong_spritesheet.png",
+            "texture/jump_spritesheet.png",
             ImageFormat::default(),
             (),
             &texture_storage,
@@ -115,7 +119,7 @@ fn load_sprite_sheet(world: &mut World) -> Handle<SpriteSheet> {
     let loader = world.read_resource::<Loader>();
     let sprite_sheet_store = world.read_resource::<AssetStorage<SpriteSheet>>();
     loader.load(
-        "texture/pong_spritesheet.ron", // Here we load the associated ron file
+        "texture/jump_spritesheet.ron",
         SpriteSheetFormat(texture_handle),
         (),
         &sprite_sheet_store,
