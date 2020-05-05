@@ -1555,6 +1555,7 @@ name = "jump"
 version = "0.1.0"
 dependencies = [
  "amethyst",
+ "serde",
 ]
 
 [[package]]

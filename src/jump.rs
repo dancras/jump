@@ -6,11 +6,11 @@ use amethyst::{
     renderer::{Camera, ImageFormat, SpriteRender, SpriteSheet, SpriteSheetFormat, Texture},
 };
 
-pub const ARENA_ROWS: u8 = 4;
-pub const ARENA_COLS: u8 = 9;
-pub const TILE_SIZE: f32 = 16.0;
+use crate::config::{JumpConfig, ArenaConfig};
 
-pub struct Jump;
+pub struct Jump {
+    pub config: JumpConfig
+}
 
 impl SimpleState for Jump {
     fn on_start(&mut self, data: StateData<'_, GameData<'_, '_>>) {
@@ -19,17 +19,17 @@ impl SimpleState for Jump {
         let sprite_sheet_handle = load_sprite_sheet(world);
 
         world.register::<Tile>();
-        initialise_grid(world, sprite_sheet_handle);
+        initialise_grid(world, sprite_sheet_handle, &self.config.arena);
 
-        initialise_camera(world);
+        initialise_camera(world, &self.config.arena);
     }
 
 }
 
-fn initialise_camera(world: &mut World) {
+fn initialise_camera(world: &mut World, config: &ArenaConfig) {
 
-    let arena_width = ARENA_COLS as f32 * TILE_SIZE;
-    let arena_height = ARENA_ROWS as f32 * TILE_SIZE;
+    let arena_width = config.cols as f32 * config.tile_size;
+    let arena_height = config.rows as f32 * config.tile_size;
 
     let mut transform = Transform::default();
     transform.set_translation_xyz(arena_width * 0.5, arena_height * 0.5, 1.0);
@@ -47,10 +47,10 @@ pub struct Tile {
 }
 
 impl Tile {
-    fn new() -> Self {
+    fn new(tile_size: f32) -> Self {
         Self {
-            width: TILE_SIZE,
-            height: TILE_SIZE,
+            width: tile_size,
+            height: tile_size,
         }
     }
 }
@@ -59,45 +59,38 @@ impl Component for Tile {
     type Storage = DenseVecStorage<Self>;
 }
 
-fn initialise_grid(world: &mut World, sprite_sheet_handle: Handle<SpriteSheet>) {
-    let w = SpriteRender {
-        sprite_sheet: sprite_sheet_handle.clone(),
-        sprite_number: 0,
-    };
+fn initialise_grid(
+    world: &mut World,
+    sprite_sheet_handle: Handle<SpriteSheet>,
+    config: &ArenaConfig
+) {
+    for (i, tile_code) in config.tiles.iter().enumerate() {
 
-    let f = SpriteRender {
-        sprite_sheet: sprite_sheet_handle.clone(),
-        sprite_number: 1,
-    };
+        let tile_code = *tile_code as usize;
 
-    let s = SpriteRender {
-        sprite_sheet: sprite_sheet_handle,
-        sprite_number: 2,
-    };
+        if tile_code == 0 {
+            continue;
+        }
 
-    let map = [
-        &w, &s, &s, &s, &s, &s, &s, &s, &w,
-        &w, &f, &s, &s, &s, &s, &s, &f, &w,
-        &w, &s, &s, &s, &s, &s, &s, &s, &w,
-        &w, &f, &f, &f, &f, &f, &f, &f, &w,
-    ];
-
-    for (i, sprite_render) in map.iter().enumerate() {
+        let sprite_render = SpriteRender {
+            sprite_sheet: sprite_sheet_handle.clone(),
+            sprite_number: tile_code - 1
+        };
 
         let i = i as u8;
         let mut transform = Transform::default();
 
-        let half_tile = TILE_SIZE / 2.0;
+        let half_tile = config.tile_size / 2.0;
 
-        let y = (ARENA_ROWS - (i / 9)) as f32 * TILE_SIZE - half_tile;
-        let x = (i % 9) as f32 * TILE_SIZE + half_tile;
+        let y = (config.rows - (i / 9)) as f32 * config.tile_size - half_tile;
+        let x = (i % 9) as f32 * config.tile_size + half_tile;
 
         transform.set_translation_xyz(x, y, 0.0);
 
         world
             .create_entity()
-            .with((*sprite_render).clone())
-            .with(Tile::new())
+            .with(sprite_render)
+            .with(Tile::new(config.tile_size))
             .with(transform)
             .build();
 

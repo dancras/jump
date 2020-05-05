@@ -1,4 +1,5 @@
 mod jump;
+mod config;
 
 use amethyst::{
     core::transform::TransformBundle,
@@ -11,6 +12,7 @@ use amethyst::{
     utils::application_root_dir,
 };
 
+use crate::config::JumpConfig;
 use crate::jump::Jump;
 
 fn main() -> amethyst::Result<()> {
@@ -19,6 +21,9 @@ fn main() -> amethyst::Result<()> {
 
     let app_root = application_root_dir()?;
     let display_config_path = app_root.join("config").join("display.ron");
+
+    let config_path = app_root.join("config").join("config.ron");
+    let config = JumpConfig::load(&config_path)?;
 
     let game_data = GameDataBuilder::default()
         .with_bundle(
@@ -33,7 +38,13 @@ fn main() -> amethyst::Result<()> {
         .with_bundle(TransformBundle::new())?;
 
     let assets_dir = app_root.join("assets");
-    let mut game = Application::new(assets_dir, Jump, game_data)?;
+    let mut game = Application::new(
+        assets_dir,
+        Jump {
+            config: config
+        },
+        game_data
+    )?;
     game.run();
 
     Ok(())
