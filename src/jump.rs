@@ -29,14 +29,13 @@ impl SimpleState for Jump {
 fn initialise_camera(world: &mut World, config: &ArenaConfig) {
 
     let arena_width = config.cols as f32 * config.tile_size;
-    let arena_height = config.rows as f32 * config.tile_size;
 
     let mut transform = Transform::default();
-    transform.set_translation_xyz(arena_width * 0.5, arena_height * 0.5, 1.0);
+    transform.set_translation_xyz(arena_width * 0.5, arena_width * 0.5, 1.0);
 
     world
         .create_entity()
-        .with(Camera::standard_2d(arena_width, arena_height))
+        .with(Camera::standard_2d(arena_width, arena_width))
         .with(transform)
         .build();
 }
@@ -77,7 +76,7 @@ fn initialise_grid(
             sprite_number: tile_code - 1
         };
 
-        let i = i as u8;
+        let i = i as u16;
         let mut transform = Transform::default();
 
         let half_tile = config.tile_size / 2.0;
