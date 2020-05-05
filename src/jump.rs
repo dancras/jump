@@ -126,6 +126,16 @@ impl Component for Moveable {
     type Storage = DenseVecStorage<Self>;
 }
 
+#[derive(Default)]
+pub struct Facing {
+    pub left: bool,
+    pub previous_x: f32
+}
+
+impl Component for Facing {
+    type Storage = DenseVecStorage<Self>;
+}
+
 fn initialise_player(
     world: &mut World,
     sprite_sheet_handle: Handle<SpriteSheet>
@@ -140,6 +150,7 @@ fn initialise_player(
 
     world.create_entity()
         .with(Moveable)
+        .with(Facing::default())
         .with(sprite_render)
         .with(transform)
         .build();
