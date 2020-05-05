@@ -19,9 +19,11 @@ impl SimpleState for Jump {
         let sprite_sheet_handle = load_sprite_sheet(world);
 
         world.register::<Tile>();
-        initialise_grid(world, sprite_sheet_handle, &self.config.arena);
+        initialise_grid(world, sprite_sheet_handle.clone(), &self.config.arena);
 
         initialise_camera(world, &self.config.arena);
+
+        initialise_player(world, sprite_sheet_handle);
     }
 
 }
@@ -48,7 +50,7 @@ pub struct Tile {
 impl Tile {
     fn new(tile_size: f32) -> Self {
         Self {
-            width: tile_size,
+            width: tile_size * 2.0,
             height: tile_size,
         }
     }
@@ -116,4 +118,29 @@ fn load_sprite_sheet(world: &mut World) -> Handle<SpriteSheet> {
         (),
         &sprite_sheet_store,
     )
+}
+
+pub struct Moveable;
+
+impl Component for Moveable {
+    type Storage = DenseVecStorage<Self>;
+}
+
+fn initialise_player(
+    world: &mut World,
+    sprite_sheet_handle: Handle<SpriteSheet>
+) {
+    let sprite_render = SpriteRender {
+        sprite_sheet: sprite_sheet_handle.clone(),
+        sprite_number: 3
+    };
+
+    let mut transform = Transform::default();
+    transform.set_translation_xyz(72.0, 24.0, 0.1);
+
+    world.create_entity()
+        .with(Moveable)
+        .with(sprite_render)
+        .with(transform)
+        .build();
 }
