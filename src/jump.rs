@@ -122,7 +122,10 @@ fn load_sprite_sheet(world: &mut World) -> Handle<SpriteSheet> {
     )
 }
 
-pub struct Moveable;
+#[derive(Default)]
+pub struct Moveable {
+    pub velocity_y: f32
+}
 
 impl Component for Moveable {
     type Storage = DenseVecStorage<Self>;
@@ -148,10 +151,10 @@ fn initialise_player(
     };
 
     let mut transform = Transform::default();
-    transform.set_translation_xyz(72.0, 24.0, 0.1);
+    transform.set_translation_xyz(72.0, 56.0, 0.1);
 
     world.create_entity()
-        .with(Moveable)
+        .with(Moveable::default())
         .with(Facing::default())
         .with(sprite_render)
         .with(transform)
