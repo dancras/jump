@@ -31,6 +31,10 @@ impl<'s> System<'s> for MovementSystem {
                 }
             }
 
+            if moveable.velocity_y == 0.0 && input.action_is_down("jump") == Some(true) {
+                moveable.velocity_y += 80.0;
+            }
+
             moveable.velocity_y -= GRAVITY * time.delta_seconds();
 
             let magnitude_y = moveable.velocity_y * time.delta_seconds();
