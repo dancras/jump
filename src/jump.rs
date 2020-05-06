@@ -65,6 +65,8 @@ fn initialise_grid(
     sprite_sheet_handle: Handle<SpriteSheet>,
     config: &ArenaConfig
 ) {
+    world.insert((*config).clone());
+
     for (i, tile_code) in config.tiles.iter().enumerate() {
 
         let tile_code = *tile_code as usize;
