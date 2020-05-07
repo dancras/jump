@@ -4,7 +4,9 @@ use amethyst::derive::SystemDesc;
 use amethyst::ecs::{Join, Read, System, SystemData, WriteStorage};
 use amethyst::input::{InputHandler, StringBindings};
 
-const VELOCITY: f32 = 20.0;
+const INITIAL_VELOCITY: f32 = 20.0;
+const ACCELERATION: f32 = 120.0;
+const FRICTION: f32 = 100.0;
 const GRAVITY: f32 = 98.0;
 
 use crate::jump::{Moveable};
@@ -26,8 +28,27 @@ impl<'s> System<'s> for MovementSystem {
 
             if let Some(horizontal) = movement {
                 if horizontal != 0.0 {
-                    let magnitude = horizontal * VELOCITY * time.delta_seconds();
-                    transform.prepend_translation_x(magnitude);
+
+                    if moveable.velocity_x == 0.0 {
+                        moveable.velocity_x = INITIAL_VELOCITY * horizontal;
+                    } else {
+                        moveable.velocity_x += horizontal * ACCELERATION * time.delta_seconds();
+                    }
+                }
+            }
+
+            if moveable.velocity_x > 0.0 {
+                moveable.velocity_x -= FRICTION * time.delta_seconds();
+
+                if moveable.velocity_x < 0.0 {
+                    moveable.velocity_x = 0.0;
+                }
+
+            } else if moveable.velocity_x < 0.0 {
+                moveable.velocity_x += FRICTION * time.delta_seconds();
+
+                if moveable.velocity_x > 0.0 {
+                    moveable.velocity_x = 0.0;
                 }
             }
 
@@ -39,6 +60,10 @@ impl<'s> System<'s> for MovementSystem {
 
             let magnitude_y = moveable.velocity_y * time.delta_seconds();
             transform.prepend_translation_y(magnitude_y);
+
+            let magnitude_x = moveable.velocity_x * time.delta_seconds();
+            transform.prepend_translation_x(magnitude_x);
+
         }
     }
 }

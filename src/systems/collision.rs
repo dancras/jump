@@ -27,8 +27,10 @@ impl<'s> System<'s> for CollisionSystem {
             let tile_y = config.rows - (transform.isometry().translation.y / 16.0).ceil() as u16;
 
             if x % 16.0 > 10.0 && is_wall_tile(&config, tile_x + 1, tile_y) {
+                moveable.velocity_x = 0.0;
                 transform.prepend_translation_x(-(x % 16.0 - 10.0));
             } else if x % 16.0 < 6.0 && is_wall_tile(&config, tile_x - 1, tile_y) {
+                moveable.velocity_x = 0.0;
                 transform.prepend_translation_x(6.0 - x % 16.0);
             }
 
