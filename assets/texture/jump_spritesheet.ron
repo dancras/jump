@@ -40,10 +40,24 @@ List((
             height: 16,
         ),
         (
+            x: 64,
+            y: 0,
+            width: 16,
+            height: 16,
+            flip_horizontal: true,
+        ),
+        (
             x: 80,
             y: 0,
             width: 16,
             height: 16,
+        ),
+        (
+            x: 80,
+            y: 0,
+            width: 16,
+            height: 16,
+            flip_horizontal: true,
         ),
     ],
 ))

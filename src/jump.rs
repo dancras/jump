@@ -132,6 +132,12 @@ impl Component for Moveable {
     type Storage = DenseVecStorage<Self>;
 }
 
+pub struct Animated;
+
+impl Component for Animated {
+    type Storage = DenseVecStorage<Self>;
+}
+
 #[derive(Default)]
 pub struct Facing {
     pub left: bool,
@@ -156,6 +162,7 @@ fn initialise_player(
 
     world.create_entity()
         .with(Moveable::default())
+        .with(Animated)
         .with(Facing::default())
         .with(sprite_render)
         .with(transform)

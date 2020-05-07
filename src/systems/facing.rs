@@ -20,11 +20,15 @@ impl<'s> System<'s> for FacingSystem {
 
             let new_x = transform.isometry().translation.x;
 
-            if new_x > facing.previous_x && facing.left {
+            if new_x > facing.previous_x {
                 facing.left = false;
-                sprite_render.sprite_number -= 1;
-            } else if new_x < facing.previous_x && !facing.left {
+            } else if new_x < facing.previous_x {
                 facing.left = true;
+            }
+
+            let is_left_sprite = sprite_render.sprite_number % 2 == 0;
+
+            if facing.left && !is_left_sprite {
                 sprite_render.sprite_number += 1;
             }
 

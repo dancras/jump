@@ -45,7 +45,8 @@ fn main() -> amethyst::Result<()> {
         .with_bundle(input_bundle)?
         .with(systems::MovementSystem, "movement_system", &["input_system"])
         .with(systems::CollisionSystem, "collision_system", &["input_system"])
-        .with(systems::FacingSystem, "facing_system", &["movement_system"]);
+        .with(systems::AnimationSystem, "animation_system", &["movement_system"])
+        .with(systems::FacingSystem, "facing_system", &["animation_system"]);
 
     let assets_dir = app_root.join("assets");
     let mut game = Application::new(
