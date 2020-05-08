@@ -124,6 +124,7 @@ fn load_sprite_sheet(world: &mut World) -> Handle<SpriteSheet> {
 
 #[derive(Default)]
 pub struct Moveable {
+    pub jump_boost_delay: f64,
     pub velocity_x: f32,
     pub velocity_y: f32,
 }

@@ -52,8 +52,20 @@ impl<'s> System<'s> for MovementSystem {
                 }
             }
 
-            if moveable.velocity_y == 0.0 && input.action_is_down("jump") == Some(true) {
-                moveable.velocity_y += 80.0;
+            if input.action_is_down("jump") == Some(true) {
+                if moveable.velocity_y == 0.0 {
+                    moveable.velocity_y += 40.0;
+                    moveable.jump_boost_delay = time.absolute_real_time_seconds() + 0.05;
+                } else if moveable.jump_boost_delay < time.absolute_real_time_seconds() {
+                    moveable.velocity_y += 20.0;
+
+                    moveable.jump_boost_delay =
+                        if moveable.velocity_y > 60.0 {
+                            time.absolute_real_time_seconds() + 1000.0
+                        } else {
+                            time.absolute_real_time_seconds() + 0.05
+                        }
+                }
             }
 
             moveable.velocity_y -= GRAVITY * time.delta_seconds();
