@@ -56,7 +56,7 @@ impl<'s> System<'s> for MovementSystem {
                 if moveable.velocity_y == 0.0 {
                     moveable.velocity_y += 40.0;
                     moveable.jump_boost_delay = time.absolute_real_time_seconds() + 0.05;
-                } else if moveable.jump_boost_delay < time.absolute_real_time_seconds() {
+                } else if moveable.jump_boost_delay < time.absolute_real_time_seconds() && time.absolute_real_time_seconds() < moveable.jump_boost_delay + 0.05  {
                     moveable.velocity_y += 20.0;
 
                     moveable.jump_boost_delay =
