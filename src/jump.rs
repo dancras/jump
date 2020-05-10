@@ -34,14 +34,16 @@ impl SimpleState for Jump {
 pub struct Progress {
     pub previous_y: f32,
     pub previous_y_start_time: f64,
+    pub is_easing: bool,
     pub ease_start_y: f32,
     pub ease_start_time: f64,
+    pub ease_end_y: f32,
     pub ease_magnitude_y: f32,
 }
 
 fn initialise_camera(world: &mut World, config: &ArenaConfig) {
 
-    let arena_width = config.cols as f32 * config.tile_size;
+    let arena_width = config.arena_width();
 
     let mut transform = Transform::default();
     transform.set_translation_xyz(arena_width * 0.5, arena_width * 0.5, 1.0);
