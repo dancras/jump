@@ -1087,6 +1087,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "ezing"
+version = "0.2.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "566e88319a9d235613fa84128a4b24450923bf0380d472f161b324936b18a7d1"
+dependencies = [
+ "num-traits 0.2.11",
+]
+
+[[package]]
 name = "failure"
 version = "0.1.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1555,6 +1564,7 @@ name = "jump"
 version = "0.1.0"
 dependencies = [
  "amethyst",
+ "ezing",
  "serde",
 ]
 

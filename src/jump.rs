@@ -16,6 +16,8 @@ impl SimpleState for Jump {
     fn on_start(&mut self, data: StateData<'_, GameData<'_, '_>>) {
         let world = data.world;
 
+        world.insert(Progress::default());
+
         let sprite_sheet_handle = load_sprite_sheet(world);
 
         world.register::<Tile>();
@@ -26,6 +28,15 @@ impl SimpleState for Jump {
         initialise_player(world, sprite_sheet_handle);
     }
 
+}
+
+#[derive(Default)]
+pub struct Progress {
+    pub previous_y: f32,
+    pub previous_y_start_time: f64,
+    pub ease_start_y: f32,
+    pub ease_start_time: f64,
+    pub ease_magnitude_y: f32,
 }
 
 fn initialise_camera(world: &mut World, config: &ArenaConfig) {
