@@ -20,11 +20,11 @@ impl<'s> System<'s> for AnimationSystem {
         for (sprite_render, moveable, _animated) in (&mut sprite_renders, &moveables, &animateds).join() {
             sprite_render.sprite_number =
                 if moveable.velocity_y != 0.0 {
-                    7
+                    9
                 } else if moveable.velocity_x != 0.0 {
-                    5
+                    7
                 } else {
-                    3
+                    5
                 };
         }
     }
