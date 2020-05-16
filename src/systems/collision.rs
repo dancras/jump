@@ -24,6 +24,7 @@ impl<'s> System<'s> for CollisionSystem {
             let y = transform.isometry().translation.y;
 
             let tile_x = (transform.isometry().translation.x / 16.0) as u16;
+            // @TODO thread '<unnamed>' panicked at 'attempt to subtract with overflow', src/systems/collision.rs:27:26
             let tile_y = config.rows - (transform.isometry().translation.y / 16.0).ceil() as u16;
 
             if x % 16.0 > 10.0 && is_wall_tile(&config, tile_x + 1, tile_y) {
@@ -34,7 +35,7 @@ impl<'s> System<'s> for CollisionSystem {
                 transform.prepend_translation_x(6.0 - x % 16.0);
             }
 
-            if y % 16.0 < 8.0 && is_wall_tile(&config, tile_x, tile_y + 1) {
+            if y % 16.0 < 8.0 && is_floor_tile(&config, tile_x, tile_y + 1, x % 16.0) {
                 moveable.velocity_y = 0.0;
                 transform.prepend_translation_y(8.0 - y % 16.0);
             }
@@ -48,4 +49,11 @@ fn is_wall_tile(config: &ArenaConfig, x: u16, y: u16) -> bool {
     let tile = config.tiles[i as usize];
 
     tile == 1 || tile == 2
+}
+
+fn is_floor_tile(config: &ArenaConfig, x: u16, y: u16, offset_x: f32) -> bool {
+    let i = y * config.cols + x;
+    let tile = config.tiles[i as usize];
+
+    tile == 1 || tile == 2 || tile == 3 && offset_x >= 11.0 || tile == 4 && offset_x <= 5.0
 }
