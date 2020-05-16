@@ -81,5 +81,15 @@ impl<'s> System<'s> for ProgressSystem {
                 transform.set_translation_y(new_camera_y);
             }
         }
+
+        let fall_offset = arena_config.tile_size * 2.0;
+
+        if camera_y - target_y > fall_offset {
+            progress.is_easing = false;
+
+            for (transform, _camera) in (&mut transforms, &cameras).join() {
+                transform.set_translation_y(target_y + fall_offset);
+            }
+        }
     }
 }
