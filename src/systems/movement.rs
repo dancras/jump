@@ -23,6 +23,13 @@ impl<'s> System<'s> for MovementSystem {
     );
 
     fn run(&mut self, (mut moveables, mut transforms, input, time): Self::SystemData) {
+
+        let mut delta = time.delta_seconds();
+
+        if delta > 0.02 {
+            delta = 0.02;
+        }
+
         for (moveable, transform) in (&mut moveables, &mut transforms).join() {
             let movement = input.axis_value("horizontal");
 
@@ -32,20 +39,20 @@ impl<'s> System<'s> for MovementSystem {
                     if moveable.velocity_x == 0.0 {
                         moveable.velocity_x = INITIAL_VELOCITY * horizontal;
                     } else {
-                        moveable.velocity_x += horizontal * ACCELERATION * time.delta_seconds();
+                        moveable.velocity_x += horizontal * ACCELERATION * delta;
                     }
                 }
             }
 
             if moveable.velocity_x > 0.0 {
-                moveable.velocity_x -= FRICTION * time.delta_seconds();
+                moveable.velocity_x -= FRICTION * delta;
 
                 if moveable.velocity_x < 0.0 {
                     moveable.velocity_x = 0.0;
                 }
 
             } else if moveable.velocity_x < 0.0 {
-                moveable.velocity_x += FRICTION * time.delta_seconds();
+                moveable.velocity_x += FRICTION * delta;
 
                 if moveable.velocity_x > 0.0 {
                     moveable.velocity_x = 0.0;
@@ -68,12 +75,12 @@ impl<'s> System<'s> for MovementSystem {
                 }
             }
 
-            moveable.velocity_y -= GRAVITY * time.delta_seconds();
+            moveable.velocity_y -= GRAVITY * delta;
 
-            let magnitude_y = moveable.velocity_y * time.delta_seconds();
+            let magnitude_y = moveable.velocity_y * delta;
             transform.prepend_translation_y(magnitude_y);
 
-            let magnitude_x = moveable.velocity_x * time.delta_seconds();
+            let magnitude_x = moveable.velocity_x * delta;
             transform.prepend_translation_x(magnitude_x);
 
         }
