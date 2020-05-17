@@ -40,6 +40,15 @@ impl<'s> System<'s> for CollisionSystem {
                 transform.prepend_translation_y(8.0 - y % 16.0);
             }
 
+            if moveable.velocity_y > 0.0 &&
+                y % 16.0 > 8.0 &&
+                is_roof_tile(&config, tile_x, tile_y - 1)
+            {
+                moveable.velocity_y = -0.001;
+                moveable.jump_boost_delay += 1000.0;
+                transform.prepend_translation_y(8.0 - y % 16.0);
+            }
+
         }
     }
 }
@@ -56,4 +65,11 @@ fn is_floor_tile(config: &ArenaConfig, x: u16, y: u16, offset_x: f32) -> bool {
     let tile = config.tiles[i as usize];
 
     tile == 1 || tile == 2 || tile == 3 && offset_x >= 11.0 || tile == 4 && offset_x <= 5.0
+}
+
+fn is_roof_tile(config: &ArenaConfig, x: u16, y: u16) -> bool {
+    let i = y * config.cols + x;
+    let tile = config.tiles[i as usize];
+
+    tile >= 1 && tile <= 4
 }
