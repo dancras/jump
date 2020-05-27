@@ -140,6 +140,8 @@ pub struct Moveable {
     pub jump_boost_delay: f64,
     pub velocity_x: f32,
     pub velocity_y: f32,
+    pub evanescent: bool,
+    pub evanescent_start_time: f64,
 }
 
 impl Component for Moveable {

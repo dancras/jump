@@ -1,11 +1,24 @@
-use amethyst::core::{Transform};
-use amethyst::derive::SystemDesc;
-use amethyst::ecs::{Read, Join, System, SystemData, WriteStorage};
+use amethyst::{
+    core::{
+        timing::Time,
+        Transform
+    },
+    derive::SystemDesc,
+    ecs::{
+        Read,
+        Join,
+        System,
+        SystemData,
+        WriteStorage
+    }
+};
 
 use crate::{
     config::{ArenaConfig},
     jump::{Moveable}
 };
+
+const EVANESCENT_DURATION: f64 = 1.5;
 
 #[derive(SystemDesc)]
 pub struct CollisionSystem;
@@ -15,13 +28,22 @@ impl<'s> System<'s> for CollisionSystem {
         WriteStorage<'s, Transform>,
         WriteStorage<'s, Moveable>,
         Read<'s, ArenaConfig>,
+        Read<'s, Time>,
     );
 
-    fn run(&mut self, (mut transforms, mut moveables, config): Self::SystemData) {
+    fn run(&mut self, (mut transforms, mut moveables, config, time): Self::SystemData) {
         for (transform, moveable) in (&mut transforms, &mut moveables).join() {
 
             let x = transform.isometry().translation.x;
             let y = transform.isometry().translation.y;
+
+            if y <= 96.0 || moveable.evanescent_start_time + EVANESCENT_DURATION <= time.absolute_real_time_seconds() {
+                moveable.evanescent = false;
+            }
+
+            if moveable.evanescent {
+                continue;
+            }
 
             let tile_x = (transform.isometry().translation.x / 16.0) as u16;
             let tile_y = config.rows - (transform.isometry().translation.y / 16.0).ceil() as u16;
@@ -49,7 +71,12 @@ impl<'s> System<'s> for CollisionSystem {
             }
 
             if is_touching_spike(&config, x, y) {
-                println!("OUCH {} {}", x, y);
+                moveable.velocity_x = 0.0;
+                moveable.velocity_y = -0.001;
+                moveable.jump_boost_delay += 1000.0;
+
+                moveable.evanescent = true;
+                moveable.evanescent_start_time = time.absolute_real_time_seconds();
             }
         }
     }
