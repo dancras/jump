@@ -3,7 +3,12 @@ use amethyst::{
     core::transform::Transform,
     ecs::prelude::{Component, DenseVecStorage},
     prelude::*,
-    renderer::{Camera, ImageFormat, SpriteRender, SpriteSheet, SpriteSheetFormat, Texture},
+    renderer::{
+        palette::Srgba,
+        resources::Tint,
+        transparent::Transparent,
+        Camera, ImageFormat, SpriteRender, SpriteSheet, SpriteSheetFormat, Texture
+    },
 };
 
 use crate::config::{JumpConfig, ArenaConfig};
@@ -176,11 +181,15 @@ fn initialise_player(
     let mut transform = Transform::default();
     transform.set_translation_xyz(72.0, 56.0, 0.1);
 
+    let tint = Tint(Srgba::new(1.0, 1.0, 1.0, 1.0));
+
     world.create_entity()
         .with(Moveable::default())
         .with(Animated)
         .with(Facing::default())
         .with(sprite_render)
         .with(transform)
+        .with(tint)
+        .with(Transparent)
         .build();
 }
