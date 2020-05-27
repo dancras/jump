@@ -12,6 +12,11 @@ impl ArenaConfig {
     pub fn arena_width(&self) -> f32 {
         self.cols as f32 * self.tile_size
     }
+
+    pub fn tile(&self, x: u16, y: u16) -> u8 {
+        let i = y * self.cols + x;
+        self.tiles[i as usize]
+    }
 }
 
 #[derive(Debug, Default, Deserialize, Serialize)]
