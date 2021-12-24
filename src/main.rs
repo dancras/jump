@@ -3,7 +3,10 @@ mod jump;
 mod systems;
 
 use amethyst::{
-    core::transform::TransformBundle,
+    core::{
+        frame_limiter::FrameRateLimitStrategy,
+        transform::TransformBundle,
+    },
     input::{InputBundle, StringBindings},
     prelude::*,
     renderer::{
@@ -13,6 +16,7 @@ use amethyst::{
     },
     utils::application_root_dir,
 };
+use std::time::Duration;
 
 use crate::config::JumpConfig;
 use crate::jump::Jump;
@@ -50,13 +54,19 @@ fn main() -> amethyst::Result<()> {
         .with(systems::ProgressSystem, "progress_system", &["collision_system"]);
 
     let assets_dir = app_root.join("assets");
-    let mut game = Application::new(
-        assets_dir,
-        Jump {
-            config: config
-        },
-        game_data
-    )?;
+
+    let mut game = Application::build(
+            assets_dir,
+            Jump {
+                config: config
+            },
+        )?
+        .with_frame_limit(
+            FrameRateLimitStrategy::SleepAndYield(Duration::from_millis(2)),
+            60,
+        )
+        .build(game_data)?;
+
     game.run();
 
     Ok(())
